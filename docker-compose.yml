@@ -1,0 +1,37 @@
+version: '3.5'
+
+services:
+  thumbsup:
+    image: thumbsupgallery/thumbsup
+    volumes:
+      - ./run/data/thumbsup-data:/data
+      - ./run/data/thumbsup-site:/site
+      - ./run/scripts/thumbsup-sbin/action.sh:/sbin/action.sh:ro
+    entrypoint: inotifyd
+    command: "action.sh /data:ymnd"
+    network_mode: none
+
+  web:
+    image: httpd
+    restart: on-failure:3
+    read_only: true
+    volumes:
+      - ./run/data/thumbsup-site:/usr/local/apache2/htdocs:ro
+      - web-usr_local_apache2_logs:/usr/local/apache2/logs:rw
+    ports:
+      - "8088:80"
+    environment:
+      - VIRTUAL_HOST=sigal.pozexyl-ng.ovh
+    networks:
+      - br-internet
+    healthcheck:
+      test: bash -c ">/dev/tcp/127.0.0.1/80"
+
+volumes:
+   web-usr_local_apache2_logs:
+     driver: local
+
+networks:
+  br-internet:
+    external:
+      name: nginx-proxy
