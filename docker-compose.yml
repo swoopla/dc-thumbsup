@@ -15,13 +15,12 @@ services:
     image: httpd
     restart: on-failure:3
     read_only: true
+    env_file: .env
     volumes:
       - ./run/data/thumbsup-site:/usr/local/apache2/htdocs:ro
       - web-usr_local_apache2_logs:/usr/local/apache2/logs:rw
-    ports:
-      - "8088:80"
-    environment:
-      - VIRTUAL_HOST=sigal.pozexyl-ng.ovh
+    expose:
+      - "80"
     networks:
       - br-internet
     healthcheck:
